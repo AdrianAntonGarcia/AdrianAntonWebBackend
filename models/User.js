@@ -20,6 +20,11 @@ const UserSchema = Schema({
     required: true,
     default: roleUsers.user,
   },
+  valido: {
+    type: Boolean,
+    required: true,
+    default: false,
+  },
 });
 
 module.exports = model('User', UserSchema);
