@@ -4,7 +4,7 @@ const bcrypt = require('bcryptjs');
 const User = require('../models/User');
 const TokenEmail = require('../models/TokenEmail');
 const { generarJWT } = require('../helpers/jwt');
-const { sendConfirmationEmail } = require('../helpers/email/emailTools');
+const { sendConfirmationEmail, sendRecoverPasswordEmail } = require('../helpers/email/emailTools');
 
 /**
  * Función que crea un nuevo usuario en la base de datos
@@ -113,4 +113,68 @@ const validateEmail = async (req, res = response) => {
   }
 };
 
-module.exports = { newUser, validateEmail };
+/**
+ * Servicio que reenvía el correo de confirmación del email
+ * @param {*} req 
+ * @param {*} res 
+ */
+const resendEmail = async (req, res = response) => {
+  try {
+    const { email } = req.body;
+    const userDB = await User.findOne({ email: email });
+    if (!userDB) {
+      return res.status(400).json({
+        ok: false,
+        errorMsg: 'No existe un usuario con ese correo',
+      });
+    }
+    if(userDB.valid){
+      return res.status(400).json({
+        ok: false,
+        errorMsg: 'El usuario ya está activo',
+      });
+    }
+    await sendConfirmationEmail(userDB, req);
+    return res.status(201).json({
+      ok: true,
+      userDB,
+    });
+  } catch (error) {
+    console.log(`Error en controllers/auth.js/resendEmail: ${error}`);
+    return res.status(500).json({
+      ok: false,
+      errorMsg: 'Por favor, hable con el admin',
+    });
+  }
+};
+
+/**
+ * Servicio que envía un email para cambiar la contraseña
+ * @param {*} req 
+ * @param {*} res 
+ */
+const sendEmailChangePass = async (req, res = response) => {
+  try {
+    const { email } = req.body;
+    const userDB = await User.findOne({ email: email });
+    if (!userDB) {
+      return res.status(400).json({
+        ok: false,
+        errorMsg: 'No existe un usuario con ese correo',
+      });
+    }
+    await sendRecoverPasswordEmail(userDB);
+    return res.status(201).json({
+      ok: true,
+      userDB,
+    });
+  } catch (error) {
+    console.log(`Error en controllers/auth.js/resendEmail: ${error}`);
+    return res.status(500).json({
+      ok: false,
+      errorMsg: 'Por favor, hable con el admin',
+    });
+  }
+};
+
+module.exports = { newUser, validateEmail, resendEmail, sendEmailChangePass };

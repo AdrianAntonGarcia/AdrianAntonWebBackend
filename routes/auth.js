@@ -1,6 +1,6 @@
 const express = require('express');
 const { check } = require('express-validator');
-const { newUser, validateEmail } = require('../controllers/auth');
+const { newUser, validateEmail, resendEmail, sendEmailChangePass } = require('../controllers/auth');
 const router = express.Router();
 
 const { validarCampos } = require('../middlewares/validar-campos');
@@ -26,9 +26,30 @@ router.post(
   newUser
 );
 
+
+/**
+ * Ruta para reenvio de email de confirmación
+ */
+
+router.post(
+  '/resendEmail',
+  [check('email', 'El email es obligatorio').isEmail(), validarCampos],
+  resendEmail
+);
+
 /**
  * Ruta para validar el email
  */
 router.get('/validateEmail/:token', [validarJWTParam], validateEmail);
+
+/**
+ * Ruta para envio de cambio de contraseña
+ */
+
+router.post(
+  '/sendChangePassEmail',
+  [check('email', 'El email es obligatorio').isEmail(), validarCampos],
+  sendEmailChangePass
+);
 
 module.exports = router;

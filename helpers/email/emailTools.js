@@ -9,14 +9,8 @@ const { generarJWT } = require('../../helpers/jwt');
  * @param {*} user
  */
 const sendConfirmationEmail = async (user, req) => {
-  // Generamos token para el email
-
   user.password = ':D';
-  const usuarioEmail = await User.findOne(
-    { _id: user._id },
-    {},
-    { sort: { created_at: -1 } }
-  );
+  const usuarioEmail = await User.findOne({ _id: user._id });
   if (usuarioEmail) {
     // Generamos un JWT
     const token = await generarJWT(usuarioEmail._id, usuarioEmail.name, '24h');
@@ -57,4 +51,51 @@ const sendConfirmationEmail = async (user, req) => {
   }
 };
 
-module.exports = {sendConfirmationEmail}
+/**
+ * Función que envía el correo para cambiar la contraseña
+ * @param {*} user
+ */
+const sendRecoverPasswordEmail = async (user) => {
+  user.password = ':D';
+  const usuarioEmail = await User.findOne({ _id: user._id });
+  if (usuarioEmail) {
+    // Generamos un JWT
+    const token = await generarJWT(usuarioEmail._id, usuarioEmail.name, '24h');
+    // Generamos un token del usuario en la base de datos
+    const tokenEmail = new TokenEmail({
+      _userId: usuarioEmail._id,
+      token: token,
+    });
+    const tokenEmailSaved = await tokenEmail.save();
+
+    /**
+     * Creamos el email y lo enviamos
+     */
+    var transporter = nodemailer.createTransport({
+      service: 'gmail',
+      auth: {
+        user: process.env.IDACGMAIL,
+        pass: process.env.PASSGMAIL,
+      },
+    });
+
+    var mailOptions = {
+      from: process.env.IDACGMAIL,
+      to: user.email,
+      subject: 'Cambio de contraseña AdriWeb',
+      text:
+        'Hola,\n\n' +
+        'Recupera tu contraseña haciendo click en: \nhttp://' +
+        process.env.SERVERWEB  +
+        '/changePass/' +
+        encodeURIComponent(tokenEmailSaved.token) +
+        '.\n',
+    };
+    await transporter.sendMail(mailOptions);
+    return true;
+  } else {
+    return false;
+  }
+};
+
+module.exports = { sendConfirmationEmail, sendRecoverPasswordEmail };
