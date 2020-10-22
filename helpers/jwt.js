@@ -1,5 +1,11 @@
 const jwt = require('jsonwebtoken');
 
+/**
+ * Función que crea un token para el usuario introducido
+ * @param {*} uid id del usuario que crea el tokeb
+ * @param {*} name nombre del usuario
+ * @param {*} time tiempo de expiración del token
+ */
 const generarJWT = (uid, name, time = '2h') => {
   return new Promise((resolve, reject) => {
     const payload = { uid, name };

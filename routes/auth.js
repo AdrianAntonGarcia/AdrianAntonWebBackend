@@ -1,12 +1,15 @@
 const express = require('express');
 const { check } = require('express-validator');
-const { newUser } = require('../controllers/auth');
+const { newUser, validateEmail } = require('../controllers/auth');
 const router = express.Router();
 
 const { validarCampos } = require('../middlewares/validar-campos');
+const { validarJWTParam } = require('../middlewares/validar-jwt-param');
 const { validarRole } = require('../middlewares/validarRole');
 
-
+/**
+ * Ruta para crear usuarios
+ */
 router.post(
   '/newUser',
   [
@@ -17,10 +20,15 @@ router.post(
     }),
     check('role', 'El role no es válido')
       .optional()
-      .custom((value, { req }) => validarRole(value)),
+      .custom((value) => validarRole(value)),
     validarCampos,
   ],
   newUser
 );
+
+/**
+ * Ruta para validar el email
+ */
+router.get('/validateEmail/:token', [validarJWTParam], validateEmail);
 
 module.exports = router;

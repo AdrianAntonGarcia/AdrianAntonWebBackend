@@ -20,7 +20,7 @@ const UserSchema = Schema({
     required: true,
     default: roleUsers.user,
   },
-  valido: {
+  valid: {
     type: Boolean,
     required: true,
     default: false,
