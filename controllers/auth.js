@@ -13,9 +13,10 @@ const { generarJWT } = require('../helpers/jwt');
  * @param {*} res
  */
 const newUser = async (req, res = response) => {
+  let userSaved = {};
   try {
     const { email, password } = req.body;
-    let user = await User.findOne({ email });
+    user = await User.findOne({ email });
     /*Si el usuario existe mandamos error */
     if (user) {
       return res.status(400).json({
@@ -28,9 +29,9 @@ const newUser = async (req, res = response) => {
     const salt = bcrypt.genSaltSync();
     user.password = bcrypt.hashSync(password, salt);
 
-    let userSaved = await user.save();
+    userSaved = await user.save();
     const confirmEmail = await sendConfirmationEmail(userSaved, req);
-    if(!confirmEmail){
+    if (!confirmEmail) {
       // Si hay error, borramos el usuario
       await userSaved.deleteOne();
       return res.status(401).json({
@@ -48,6 +49,12 @@ const newUser = async (req, res = response) => {
       token,
     });
   } catch (error) {
+    try {
+      await userSaved.deleteOne();
+    } catch {
+      console.log(`Error en controllers/auth.js/newUser: ${error}`);
+    }
+
     console.log(`Error en controllers/auth.js/newUser: ${error}`);
 
     return res.status(500).json({
@@ -98,9 +105,9 @@ const sendConfirmationEmail = async (user, req) => {
         '.\n',
     };
 
-    const datos = await transporter.sendMail(mailOptions);
+    await transporter.sendMail(mailOptions);
     return true;
-  }else{
+  } else {
     return false;
   }
 };
