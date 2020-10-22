@@ -31,9 +31,11 @@ const newUser = async (req, res = response) => {
     let userSaved = await user.save();
     const confirmEmail = await sendConfirmationEmail(userSaved, req);
     if(!confirmEmail){
+      // Si hay error, borramos el usuario
+      await userSaved.deleteOne();
       return res.status(401).json({
         ok: false,
-        errorMsg: 'Usuario no encontrado',
+        errorMsg: 'Error en el servicio, intentelo de nuevo',
       });
     }
     // Generar JWT
@@ -130,7 +132,6 @@ const validateEmail = async (req, res = response) => {
     }
     // Activamos el usuario
     userToken.valid = true;
-    console.log(userToken);
     const userActivated = await userToken.save();
     return res.status(201).json({
       ok: true,
