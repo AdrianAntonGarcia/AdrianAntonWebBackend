@@ -4,8 +4,49 @@ const bcrypt = require('bcryptjs');
 const User = require('../models/User');
 const TokenEmail = require('../models/TokenEmail');
 const { generarJWT } = require('../helpers/jwt');
-const { sendConfirmationEmail, sendRecoverPasswordEmail } = require('../helpers/email/emailTools');
+const {
+  sendConfirmationEmail,
+  sendRecoverPasswordEmail,
+} = require('../helpers/email/emailTools');
 
+const login = async (req, res = response) => {
+  try {
+    const { email, password } = req.body;
+    user = await User.findOne({ email });
+    /*Si el usuario no existe mandamos error */
+    if (!user) {
+      return res.status(400).json({
+        ok: false,
+        errorMsg:
+          'No existe ningún usuario con ese correo, por favor, registrese',
+      });
+    }
+    /*Comprobamos la contraseña */
+    const correctPassword = await bcrypt.compare(password, user.password);
+    if (!correctPassword) {
+      return res.status(400).json({
+        ok: false,
+        errorMsg: 'La contraseña es incorrecta',
+      });
+    }
+    /*Generamos el token */
+
+    const token = await generarJWT(user.id, user.name);
+    user.password = ':D';
+    res.status(201).json({
+      ok: true,
+      user,
+      token,
+    });
+  } catch (error) {
+    console.log(`Error en controllers/auth.js/login: ${error}`);
+
+    return res.status(500).json({
+      ok: false,
+      errorMsg: 'Por favor, hable con el admin',
+    });
+  }
+};
 /**
  * Función que crea un nuevo usuario en la base de datos
  * @param {*} req
@@ -115,8 +156,8 @@ const validateEmail = async (req, res = response) => {
 
 /**
  * Servicio que reenvía el correo de confirmación del email
- * @param {*} req 
- * @param {*} res 
+ * @param {*} req
+ * @param {*} res
  */
 const resendEmail = async (req, res = response) => {
   try {
@@ -128,7 +169,7 @@ const resendEmail = async (req, res = response) => {
         errorMsg: 'No existe un usuario con ese correo',
       });
     }
-    if(userDB.valid){
+    if (userDB.valid) {
       return res.status(400).json({
         ok: false,
         errorMsg: 'El usuario ya está activo',
@@ -150,8 +191,8 @@ const resendEmail = async (req, res = response) => {
 
 /**
  * Servicio que envía un email para cambiar la contraseña
- * @param {*} req 
- * @param {*} res 
+ * @param {*} req
+ * @param {*} res
  */
 const sendEmailChangePass = async (req, res = response) => {
   try {
@@ -177,4 +218,10 @@ const sendEmailChangePass = async (req, res = response) => {
   }
 };
 
-module.exports = { newUser, validateEmail, resendEmail, sendEmailChangePass };
+module.exports = {
+  newUser,
+  validateEmail,
+  resendEmail,
+  sendEmailChangePass,
+  login,
+};
