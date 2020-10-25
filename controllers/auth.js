@@ -21,6 +21,12 @@ const login = async (req, res = response) => {
           'No existe ningún usuario con ese correo, por favor, registrese',
       });
     }
+    if(!user.valid){
+      return res.status(400).json({
+        ok: false,
+        errorMsg: 'El usuario no esta activado, revise su correo',
+      });
+    }
     /*Comprobamos la contraseña */
     const correctPassword = await bcrypt.compare(password, user.password);
     if (!correctPassword) {
