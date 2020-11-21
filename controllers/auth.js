@@ -9,6 +9,8 @@ const {
   sendRecoverPasswordEmail,
 } = require('../helpers/email/emailTools');
 
+const path = require('path');
+
 const login = async (req, res = response) => {
   try {
     const { email, password } = req.body;
@@ -21,7 +23,7 @@ const login = async (req, res = response) => {
           'No existe ningún usuario con ese correo, por favor, registrese',
       });
     }
-    if(!user.valid){
+    if (!user.valid) {
       return res.status(400).json({
         ok: false,
         errorMsg: 'El usuario no esta activado, revise su correo',
@@ -144,6 +146,8 @@ const validateEmail = async (req, res = response) => {
     userToken.valid = true;
     const userActivated = await userToken.save();
     userActivated.password = ':D';
+    console.log(__dirname);
+    return res.sendFile(path.join(__dirname + '../../public/userValidate.html'));
     return res.status(201).json({
       ok: true,
       uid: req.uid,
