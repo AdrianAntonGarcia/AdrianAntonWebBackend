@@ -148,13 +148,6 @@ const validateEmail = async (req, res = response) => {
     userActivated.password = ':D';
     console.log(__dirname);
     return res.sendFile(path.join(__dirname + '../../public/userValidate.html'));
-    return res.status(201).json({
-      ok: true,
-      uid: req.uid,
-      name: req.name,
-      token: tokenDB,
-      userActivated,
-    });
   } catch (error) {
     console.log(`Error en controllers/auth.js/validateEmail: ${error}`);
     return res.status(500).json({
