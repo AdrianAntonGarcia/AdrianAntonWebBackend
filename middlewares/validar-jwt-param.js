@@ -1,6 +1,12 @@
 const { response, request } = require('express');
 const jwt = require('jsonwebtoken');
 
+/**
+ * Middleware que valida el token si viene como parámetro de la petición
+ * @param {*} req
+ * @param {*} res
+ * @param {*} next
+ */
 const validarJWTParam = (req = request, res = response, next) => {
   // token por param
   var token = req.params['token'];
