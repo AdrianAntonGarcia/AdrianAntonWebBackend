@@ -181,7 +181,6 @@ const validateEmail = async (req, res = response) => {
     userToken.valid = true;
     const userActivated = await userToken.save();
     userActivated.password = ':D';
-    console.log(__dirname);
     return res.sendFile(
       path.join(__dirname + '../../public/userValidate.html')
     );

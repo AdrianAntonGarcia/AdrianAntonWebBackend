@@ -42,7 +42,7 @@ const sendConfirmationEmail = async (user, req) => {
         req.headers.host +
         '/api/auth/validateEmail/' +
         encodeURIComponent(tokenEmailSaved.token) +
-        '.\n',
+        '\n',
     };
     await transporter.sendMail(mailOptions);
     return true;
@@ -86,7 +86,7 @@ const sendRecoverPasswordEmail = async (user) => {
       text:
         'Hola,\n\n' +
         'Recupera tu contraseña haciendo click en: \nhttp://' +
-        process.env.SERVERWEB  +
+        process.env.SERVERWEB +
         '/changePass/' +
         encodeURIComponent(tokenEmailSaved.token) +
         '.\n',
