@@ -6,7 +6,7 @@ const jwt = require('jsonwebtoken');
  * @param {*} name nombre del usuario
  * @param {*} time tiempo de expiración del token
  */
-const generarJWT = (uid, name, time = '2h') => {
+const generarJWT = (uid, name, time = process.env.TIMETOKEN) => {
   return new Promise((resolve, reject) => {
     const payload = { uid, name };
     jwt.sign(

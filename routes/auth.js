@@ -6,10 +6,12 @@ const {
   resendEmail,
   sendEmailChangePass,
   login,
+  renewToken,
 } = require('../controllers/auth');
 const router = express.Router();
 
 const { validarCampos } = require('../middlewares/validar-campos');
+const { validarJWT } = require('../middlewares/validar-jwt');
 const { validarJWTParam } = require('../middlewares/validar-jwt-param');
 const { validarRole } = require('../middlewares/validarRole');
 
@@ -47,12 +49,16 @@ router.post(
 /**
  * Ruta para reenvio de email de confirmación
  */
-
 router.post(
   '/resendEmail',
   [check('email', 'El email es obligatorio').isEmail(), validarCampos],
   resendEmail
 );
+
+/**
+ * Revalidar token
+ */
+router.get('/renew', validarJWT, renewToken);
 
 /**
  * Ruta para validar el email
@@ -62,7 +68,6 @@ router.get('/validateEmail/:token', [validarJWTParam], validateEmail);
 /**
  * Ruta para envio de cambio de contraseña
  */
-
 router.post(
   '/sendChangePassEmail',
   [check('email', 'El email es obligatorio').isEmail(), validarCampos],

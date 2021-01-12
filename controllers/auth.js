@@ -11,6 +11,12 @@ const {
 
 const path = require('path');
 
+/**
+ * Función que realiza el login del usuario,
+ * devolviendo el usuario y el token generado
+ * @param {*} req
+ * @param {*} res
+ */
 const login = async (req, res = response) => {
   try {
     const { email, password } = req.body;
@@ -114,6 +120,35 @@ const newUser = async (req, res = response) => {
 };
 
 /**
+ * renewToken: Realiza la renovación del token del usuario
+ * @param {*} req
+ * @param {*} res
+ */
+const renewToken = async (req, res) => {
+  try {
+    const uid = req.uid;
+    const name = req.name;
+    // Generar un nuevo JWT
+    const token = await generarJWT(uid, name);
+
+    // Obtener el usuario por uid
+    const usuario = await User.findById(uid);
+    usuario.password = ':D';
+    res.json({
+      ok: true,
+      usuario,
+      token,
+    });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({
+      ok: false,
+      msg: 'Hable con el administrador',
+    });
+  }
+};
+
+/**
  * Servicio que valida el email del usuario y coloca el usuario como activo
  * @param {*} req
  * @param {*} res
@@ -147,7 +182,9 @@ const validateEmail = async (req, res = response) => {
     const userActivated = await userToken.save();
     userActivated.password = ':D';
     console.log(__dirname);
-    return res.sendFile(path.join(__dirname + '../../public/userValidate.html'));
+    return res.sendFile(
+      path.join(__dirname + '../../public/userValidate.html')
+    );
   } catch (error) {
     console.log(`Error en controllers/auth.js/validateEmail: ${error}`);
     return res.status(500).json({
@@ -227,4 +264,5 @@ module.exports = {
   resendEmail,
   sendEmailChangePass,
   login,
+  renewToken,
 };
