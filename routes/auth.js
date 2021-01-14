@@ -7,12 +7,14 @@ const {
   sendEmailChangePass,
   login,
   renewToken,
+  changePass,
 } = require('../controllers/auth');
 const router = express.Router();
 
 const { validarCampos } = require('../middlewares/validar-campos');
 const { validarJWT } = require('../middlewares/validar-jwt');
 const { validarJWTParam } = require('../middlewares/validar-jwt-param');
+const { validarPassword } = require('../middlewares/validar-password');
 const { validarRole } = require('../middlewares/validarRole');
 
 router.post(
@@ -64,6 +66,15 @@ router.get('/renew', validarJWT, renewToken);
  * Ruta para validar el email
  */
 router.get('/validateEmail/:token', [validarJWTParam], validateEmail);
+
+/**
+ * Ruta para cambiar el password de un usuario
+ */
+router.post(
+  '/changePass/:token',
+  [validarJWTParam, validarPassword],
+  changePass
+);
 
 /**
  * Ruta para envio de cambio de contraseña

@@ -257,6 +257,53 @@ const sendEmailChangePass = async (req, res = response) => {
   }
 };
 
+/**
+ * Función que cambia la contraseña de un usuario
+ * @param {*} req
+ * @param {*} res
+ */
+const changePass = async (req, res = response) => {
+  let userSaved = {};
+  try {
+    // Buscamos el token en la base de datos
+    const tokenDB = await TokenEmail.findOne(
+      { token: req.token },
+      {},
+      { sort: { created_at: -1 } }
+    );
+    if (!tokenDB) {
+      return res.status(401).json({
+        ok: false,
+        errorMsg:
+          'No verificado, token no encontrado, intente reenviar código de activación',
+      });
+    }
+
+    // Buscamos el usuario del token al que hay que cambiar la contraseña
+    const user = await User.findOne({ _id: tokenDB._userId });
+
+    // Encriptamos la nueva contraseña
+    const salt = bcrypt.genSaltSync();
+    user.password = bcrypt.hashSync(req.body.password, salt);
+    userSaved = await user.save();
+    userSaved.password = ':D';
+    // Generar JWT
+    const token = await generarJWT(user.id, user.name);
+
+    res.status(201).json({
+      ok: true,
+      userSaved,
+      token,
+    });
+  } catch (error) {
+    console.log(`Error en controllers/auth.js/ChangePass: ${error}`);
+    return res.status(500).json({
+      ok: false,
+      errorMsg: 'Por favor, hable con el admin',
+    });
+  }
+};
+
 module.exports = {
   newUser,
   validateEmail,
@@ -264,4 +311,5 @@ module.exports = {
   sendEmailChangePass,
   login,
   renewToken,
+  changePass,
 };
