@@ -4,6 +4,9 @@ var Schema = mongoose.Schema;
 
 /**
  * Guardamos en la base de datos el token del usuario con una fecha de espiración.
+ * Uso este registro porque jwt no permite revocar tokens, por lo que para eliminar
+ * un token hay que hacerlo a través de una tabla, el token como si no se revoca dentro
+ * de jwt pero si en nuestras tablas
  */
 var tokenEmail = new Schema({
   _userId: { type: Schema.Types.ObjectId, required: true, red: 'Usuario' },

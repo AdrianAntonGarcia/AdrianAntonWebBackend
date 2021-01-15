@@ -1,15 +1,13 @@
 const { response } = require('express');
 const bcrypt = require('bcryptjs');
-
 const User = require('../models/User');
 const TokenEmail = require('../models/TokenEmail');
 const { generarJWT } = require('../helpers/jwt');
+const path = require('path');
 const {
   sendConfirmationEmail,
   sendRecoverPasswordEmail,
 } = require('../helpers/email/emailTools');
-
-const path = require('path');
 
 /**
  * Función que realiza el login del usuario,
@@ -287,6 +285,8 @@ const changePass = async (req, res = response) => {
     user.password = bcrypt.hashSync(req.body.password, salt);
     userSaved = await user.save();
     userSaved.password = ':D';
+    // Borramos el token para que no se pueda volver a usar
+    await tokenDB.deleteOne();
     // Generar JWT
     const token = await generarJWT(user.id, user.name);
 
@@ -305,11 +305,11 @@ const changePass = async (req, res = response) => {
 };
 
 module.exports = {
+  changePass,
+  login,
   newUser,
-  validateEmail,
+  renewToken,
   resendEmail,
   sendEmailChangePass,
-  login,
-  renewToken,
-  changePass,
+  validateEmail,
 };

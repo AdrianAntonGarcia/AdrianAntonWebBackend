@@ -10,7 +10,6 @@ const jwt = require('jsonwebtoken');
 const validarJWTParam = (req = request, res = response, next) => {
   // token por param
   var token = req.params['token'];
-  console.log(token);
   if (!token) {
     return res.status(401).json({
       ok: false,
