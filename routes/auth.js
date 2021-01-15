@@ -16,6 +16,7 @@ const { validarJWT } = require('../middlewares/validar-jwt');
 const { validarJWTParam } = require('../middlewares/validar-jwt-param');
 const { validarPassword } = require('../middlewares/validar-password');
 const { validarRole } = require('../middlewares/validarRole');
+const { validarJWTQuery } = require('../middlewares/validar-jwt-query');
 
 router.post(
   '/login',
@@ -70,9 +71,10 @@ router.get('/validateEmail/:token', [validarJWTParam], validateEmail);
 /**
  * Servicio que simplemente valida que el token sea corecto
  */
-router.post('/validateToken/:token', [validarJWTParam], (req, res = response) =>
+router.post('/validateToken', validarJWTQuery, (req, res = response) =>
   res.status(201).json({
     ok: true,
+    uid: req.uid,
   })
 );
 

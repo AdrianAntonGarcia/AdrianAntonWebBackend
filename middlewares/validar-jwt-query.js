@@ -7,10 +7,9 @@ const jwt = require('jsonwebtoken');
  * @param {*} res
  * @param {*} next
  */
-const validarJWTParam = (req = request, res = response, next) => {
+const validarJWTQuery = (req = request, res = response, next) => {
   // token por param
-  var token = req.params['token'];
-  console.log(token);
+  const token = req.query.token;
   if (!token) {
     return res.status(401).json({
       ok: false,
@@ -18,7 +17,7 @@ const validarJWTParam = (req = request, res = response, next) => {
     });
   }
   try {
-    token = decodeURIComponent(token);
+    // token = decodeURIComponent(token);
     // Validar el token
     const payload = jwt.verify(token, process.env.SECRET_JWT_SEED);
     req.uid = payload.uid;
@@ -34,5 +33,5 @@ const validarJWTParam = (req = request, res = response, next) => {
 };
 
 module.exports = {
-  validarJWTParam,
+  validarJWTQuery,
 };
