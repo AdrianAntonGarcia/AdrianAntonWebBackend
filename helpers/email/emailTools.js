@@ -87,9 +87,9 @@ const sendRecoverPasswordEmail = async (user) => {
         'Hola,\n\n' +
         'Recupera tu contraseña haciendo click en: \nhttp://' +
         process.env.SERVERWEB +
-        '/changePass/' +
+        '/auth/changePass/' +
         encodeURIComponent(tokenEmailSaved.token) +
-        '.\n',
+        '\n',
     };
     await transporter.sendMail(mailOptions);
     return true;

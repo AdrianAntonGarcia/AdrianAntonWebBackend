@@ -68,6 +68,15 @@ router.get('/renew', validarJWT, renewToken);
 router.get('/validateEmail/:token', [validarJWTParam], validateEmail);
 
 /**
+ * Servicio que simplemente valida que el token sea corecto
+ */
+router.post('/validateToken/:token', [validarJWTParam], (req, res = response) =>
+  res.status(201).json({
+    ok: true,
+  })
+);
+
+/**
  * Ruta para cambiar el password de un usuario
  */
 router.post(
