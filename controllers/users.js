@@ -7,13 +7,18 @@ const { response, request } = require('express');
  */
 const getUsers = async (req = request, res = response) => {
   try {
-    const users = await User.find();
+    const { skip = 0, limit = 0 } = req.body;
+    let users = await User.find().skip(skip).limit(limit);
+    users = users.map((user) => {
+      user.password = ':D';
+      return user;
+    });
     res.json({
       ok: true,
       users,
     });
   } catch (error) {
-    console.log(error);
+    console.error('Error en getUsers: ' + error);
     res.status(500).json({
       ok: false,
       msg: 'Hable con el administrador',
